@@ -1,9 +1,0 @@
-{
-  "/auth/login/page": "app/auth/login/page.js",
-  "/debug/page": "app/debug/page.js",
-  "/api/auth/login/route": "app/api/auth/login/route.js",
-  "/user/feed/page": "app/user/feed/page.js",
-  "/user/account/page": "app/user/account/page.js",
-  "/admin/dashboard/page": "app/admin/dashboard/page.js",
-  "/admin/upload/page": "app/admin/upload/page.js"
-}
