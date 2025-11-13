@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #f9fafb;
+    --card-bg: #1f2937;
+    --card-border: #374151;
+    --input-bg: #374151;
+    --input-border: #4b5563;
+    --btn-primary-bg: #dc2626;
+    --btn-primary-hover: #b91c1c;
+    --btn-secondary-bg: #4b5563;
+    --btn-secondary-hover: #6b7280;
+    --btn-secondary-text: #f9fafb;
+  }
+
+  body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Inter, Arial, Helvetica, sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium px-4 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2;
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--input-border);
+  }
+
+  .btn:hover {
+    background-color: var(--btn-secondary-hover);
+  }
+
+  .btn-primary {
+    background-color: var(--btn-primary-bg);
+    color: white;
+    border: 1px solid var(--btn-primary-bg);
+  }
+
+  .btn-primary:hover {
+    background-color: var(--btn-primary-hover);
+  }
+
+  .btn-danger {
+    background-color: #dc2626;
+    color: white;
+    border: 1px solid #dc2626;
+  }
+
+  .btn-danger:hover {
+    background-color: #b91c1c;
+  }
+
+  .input {
+    @apply block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 sm:text-sm;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--foreground);
+  }
+
+  .input:focus {
+    border-color: var(--btn-primary-bg);
+    --tw-ring-color: var(--btn-primary-bg);
+  }
+
+  .textarea {
+    @apply block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 sm:text-sm;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--foreground);
+    resize: vertical;
+  }
+
+  .textarea:focus {
+    border-color: var(--btn-primary-bg);
+    --tw-ring-color: var(--btn-primary-bg);
+  }
+
+  .select {
+    @apply block w-full px-3 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 sm:text-sm;
+    background-color: var(--input-bg);
+    border: 1px solid var(--input-border);
+    color: var(--foreground);
+  }
+
+  .select:focus {
+    border-color: var(--btn-primary-bg);
+    --tw-ring-color: var(--btn-primary-bg);
+  }
+
+  .card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
