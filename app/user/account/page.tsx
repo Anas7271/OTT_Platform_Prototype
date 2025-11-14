@@ -47,7 +47,7 @@ export default function AccountPage() {
       const data = await response.json();
 
       // Update user in auth context with the latest data from server
-      const updatedUser = { ...user, subscriptionPlan: newPlan };
+      const updatedUser = { ...user, subscriptionPlan: newPlan as 'default' | 'lite' | 'premium' };
       updateUser(updatedUser);
 
       // Update localStorage to maintain consistency
@@ -160,7 +160,7 @@ export default function AccountPage() {
                     <button
                       onClick={() => handlePlanChange('default')}
                       className="btn btn-secondary mt-4 w-full"
-                      disabled={user?.subscriptionPlan === 'default' || isUpdating}
+                      disabled={isUpdating}
                     >
                       {isUpdating ? 'Updating...' : 'Downgrade'}
                     </button>
@@ -187,7 +187,7 @@ export default function AccountPage() {
                     <button
                       onClick={() => handlePlanChange('lite')}
                       className="btn btn-primary mt-4 w-full"
-                      disabled={user?.subscriptionPlan === 'lite' || isUpdating}
+                      disabled={isUpdating}
                     >
                       {isUpdating ? 'Updating...' : (user?.subscriptionPlan === 'premium' ? 'Downgrade' : 'Upgrade')}
                     </button>
@@ -214,7 +214,7 @@ export default function AccountPage() {
                     <button
                       onClick={() => handlePlanChange('premium')}
                       className="btn btn-primary mt-4 w-full"
-                      disabled={user?.subscriptionPlan === 'premium' || isUpdating}
+                      disabled={isUpdating}
                     >
                       {isUpdating ? 'Updating...' : 'Upgrade'}
                     </button>

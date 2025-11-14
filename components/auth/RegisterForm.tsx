@@ -66,16 +66,16 @@ export default function RegisterForm() {
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--background)' }}>
       <div className="card w-full max-w-md">
         <div className="card-header">
-          <h2 className="text-2xl font-bold text-center">Create Account</h2>
-          <p className="text-center text-gray-600 mt-1">Join our OTT platform</p>
+          <h2 className="text-2xl font-bold text-center" style={{ color: 'var(--foreground)' }}>Create Account</h2>
+          <p className="text-center mt-1" style={{ color: 'var(--foreground)', opacity: 0.8 }}>Join our OTT platform</p>
         </div>
         <div className="card-body">
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="username" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                 Username
               </label>
               <input
@@ -91,12 +91,12 @@ export default function RegisterForm() {
                 required
               />
               {formik.touched.username && formik.errors.username && (
-                <p className="mt-1 text-sm text-red-600">{formik.errors.username}</p>
+                <p className="mt-1 text-sm" style={{ color: '#fca5a5' }}>{formik.errors.username}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                 Email
               </label>
               <input
@@ -112,12 +112,12 @@ export default function RegisterForm() {
                 required
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="mt-1 text-sm text-red-600">{formik.errors.email}</p>
+                <p className="mt-1 text-sm" style={{ color: '#fca5a5' }}>{formik.errors.email}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                 Password
               </label>
               <input
@@ -133,12 +133,12 @@ export default function RegisterForm() {
                 required
               />
               {formik.touched.password && formik.errors.password && (
-                <p className="mt-1 text-sm text-red-600">{formik.errors.password}</p>
+                <p className="mt-1 text-sm" style={{ color: '#fca5a5' }}>{formik.errors.password}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                 Confirm Password
               </label>
               <input
@@ -154,19 +154,25 @@ export default function RegisterForm() {
                 required
               />
               {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                <p className="mt-1 text-sm text-red-600">{formik.errors.confirmPassword}</p>
+                <p className="mt-1 text-sm" style={{ color: '#fca5a5' }}>{formik.errors.confirmPassword}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="role" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
                 Role
               </label>
               <select
                 id="role"
                 name="role"
                 value={formik.values.role}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  formik.handleChange(e);
+                  // If changing to admin, set subscription plan to default
+                  if (e.target.value === 'admin') {
+                    formik.setFieldValue('subscriptionPlan', 'default');
+                  }
+                }}
                 onBlur={formik.handleBlur}
                 className="select"
               >
@@ -175,23 +181,25 @@ export default function RegisterForm() {
               </select>
             </div>
 
-            <div>
-              <label htmlFor="subscriptionPlan" className="block text-sm font-medium text-gray-700 mb-1">
-                Subscription Plan
-              </label>
-              <select
-                id="subscriptionPlan"
-                name="subscriptionPlan"
-                value={formik.values.subscriptionPlan}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="select"
-              >
-                <option value="default">Default (Free)</option>
-                <option value="lite">Lite (₹0)</option>
-                <option value="premium">Premium (₹0)</option>
-              </select>
-            </div>
+            {formik.values.role === 'user' && (
+              <div>
+                <label htmlFor="subscriptionPlan" className="block text-sm font-medium mb-1" style={{ color: 'var(--foreground)' }}>
+                  Subscription Plan
+                </label>
+                <select
+                  id="subscriptionPlan"
+                  name="subscriptionPlan"
+                  value={formik.values.subscriptionPlan}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="select"
+                >
+                  <option value="default">Default (Free)</option>
+                  <option value="lite">Lite (₹299/month)</option>
+                  <option value="premium">Premium (₹599/month)</option>
+                </select>
+              </div>
+            )}
 
             <button
               type="submit"
@@ -202,7 +210,7 @@ export default function RegisterForm() {
             </button>
 
             <div className="text-center">
-              <Link href="/auth/login" className="text-blue-600 hover:text-blue-500">
+              <Link href="/auth/login" style={{ color: '#3b82f6' }}>
                 Already have an account? Login
               </Link>
             </div>

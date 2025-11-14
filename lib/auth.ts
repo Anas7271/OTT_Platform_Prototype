@@ -4,6 +4,7 @@ import { User } from './models/User';
 export interface JWTPayload {
   userId: string;
   email: string;
+  username: string;
   role: string;
   subscriptionPlan: string;
 }
@@ -12,6 +13,7 @@ export const generateToken = (user: User): string => {
   const payload: JWTPayload = {
     userId: user._id!.toString(),
     email: user.email,
+    username: user.username,
     role: user.role,
     subscriptionPlan: user.subscriptionPlan,
   };

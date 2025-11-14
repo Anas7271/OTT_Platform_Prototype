@@ -19,7 +19,12 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className={inter.className}>
         <AuthProvider>
-          {children}
+          {/* Dark Noise Background */}
+          <div className="dark-noise-bg" />
+          {/* Main Content */}
+          <div className="main-content-wrapper min-h-screen w-full">
+            {children}
+          </div>
         </AuthProvider>
       </body>
     </html>
