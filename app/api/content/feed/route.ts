@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContentCollection } from '@/lib/mongodb';
 import { requireAuth } from '@/lib/middleware';
 import { UserModel } from '@/lib/models/User';
+import Content from '@/lib/models/Content';
 
 async function handleGetFeed(request: NextRequest, user: any) {
   try {
-    const contentCollection = await getContentCollection();
+    console.log('Feed API called for user:', { subscriptionPlan: user.subscriptionPlan, userId: user.userId });
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
@@ -27,6 +27,8 @@ async function handleGetFeed(request: NextRequest, user: any) {
     }
     // Premium users can see all content
 
+    console.log('Feed API filter:', filter);
+
     // Apply category filter
     if (category) {
       filter.category = category;
@@ -37,16 +39,26 @@ async function handleGetFeed(request: NextRequest, user: any) {
       filter.title = { $regex: search, $options: 'i' };
     }
 
-    // Get content with pagination
-    const content = await contentCollection
-      .find(filter)
+    // First, let's get total count of all documents using Mongoose
+    const totalAll = await Content.countDocuments({});
+    console.log('Total documents using Mongoose:', totalAll);
+
+    // Get content with pagination using Mongoose
+    const content = await Content.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .toArray();
+      .lean(); // Convert to plain JavaScript objects
 
     // Get total count for pagination
-    const total = await contentCollection.countDocuments(filter);
+    const total = await Content.countDocuments(filter);
+
+    console.log('Feed API result:', { contentCount: content.length, total, filter });
+
+    // Debug: Show first few documents structure
+    if (content.length > 0) {
+      console.log('Sample document structure:', JSON.stringify(content[0], null, 2));
+    }
 
     return NextResponse.json({
       content,
@@ -60,6 +72,11 @@ async function handleGetFeed(request: NextRequest, user: any) {
         category,
         search,
         userSubscription: user.subscriptionPlan,
+      },
+      debug: {
+        totalAll,
+        contentCount: content.length,
+        filter,
       },
     });
   } catch (error) {

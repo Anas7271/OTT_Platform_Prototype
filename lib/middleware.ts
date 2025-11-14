@@ -7,18 +7,23 @@ export async function authenticate(request: NextRequest) {
   try {
     const token = getTokenFromHeaders(request.headers as any);
     if (!token) {
+      console.log('Middleware: No token provided');
       return null;
     }
 
     const decoded = verifyToken(token);
+    console.log('Middleware: Token decoded, userId:', decoded.userId);
 
     // Get fresh user data from database
     const usersCollection = await getUsersCollection();
     const user = await usersCollection.findOne({ _id: new ObjectId(decoded.userId) });
 
     if (!user) {
+      console.log('Middleware: User not found in database for userId:', decoded.userId);
       return null;
     }
+
+    console.log('Middleware: User authenticated:', { userId: user._id, role: user.role, username: user.username });
 
     return {
       userId: user._id.toString(),
@@ -28,6 +33,7 @@ export async function authenticate(request: NextRequest) {
       username: user.username,
     };
   } catch (error) {
+    console.error('Middleware: Authentication error:', error);
     return null;
   }
 }

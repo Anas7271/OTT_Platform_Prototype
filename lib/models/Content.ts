@@ -55,9 +55,9 @@ const ContentSchema = new Schema<IContent>({
 });
 
 // Create the model
-const Content = mongoose.models.Content || mongoose.model<IContent>('Content', ContentSchema);
+const ContentModelInstance = mongoose.models.Content || mongoose.model<IContent>('Content', ContentSchema);
 
-export default Content;
+export default ContentModelInstance;
 
 export interface Content {
   _id?: string;
@@ -71,6 +71,9 @@ export interface Content {
   updatedAt: Date;
 }
 
+// Also export the model as Content for backward compatibility
+export { ContentModelInstance as Content };
+
 export interface CreateContentInput {
   title: string;
   description: string;
@@ -80,7 +83,7 @@ export interface CreateContentInput {
   accessLevel?: 'everyone' | 'lite' | 'premium';
 }
 
-export class ContentModel {
+export class ContentHelper {
   static sanitizeContent(content: Content): Content {
     return content;
   }

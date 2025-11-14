@@ -6,14 +6,25 @@ import { useAuth } from '@/lib/auth-context';
 import ContentUploadForm from '@/components/admin/ContentUploadForm';
 
 export default function AdminUploadPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
+    if (!loading && (!user || user.role !== 'admin')) {
+      console.log('Redirecting to login - user:', user, 'role:', user?.role);
       router.push('/auth/login');
     }
-  }, [user, router]);
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+        <div className="text-center">
+          <h2 className="text-xl font-semibold" style={{ color: 'var(--foreground)' }}>Loading...</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!user || user.role !== 'admin') {
     return (
@@ -21,6 +32,7 @@ export default function AdminUploadPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
           <p style={{ color: 'var(--foreground)', opacity: 0.8 }}>You don&apos;t have permission to access this page.</p>
+          <p style={{ color: 'var(--foreground)', opacity: 0.6 }}>User: {user ? JSON.stringify(user) : 'No user'}</p>
         </div>
       </div>
     );
@@ -51,3 +63,5 @@ export default function AdminUploadPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic';

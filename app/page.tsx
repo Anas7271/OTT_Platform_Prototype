@@ -10,12 +10,18 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log('Main page useEffect:', { loading, user: user ? { id: user._id, role: user.role, username: user.username } : 'No user' });
+
     // If already authenticated, redirect based on role
     if (!loading && user) {
       if (user.role === 'admin') {
+        console.log('Main page redirecting admin to dashboard');
         router.replace('/admin/dashboard');
       } else if (user.role === 'user') {
+        console.log('Main page redirecting user to feed');
         router.replace('/user/feed');
+      } else {
+        console.log('Main page unknown role:', user.role);
       }
     }
   }, [user, loading, router]);
@@ -64,3 +70,5 @@ export default function Home() {
     </main>
   );
 }
+
+export const dynamic = 'force-dynamic';

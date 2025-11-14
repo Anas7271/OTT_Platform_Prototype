@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getContentCollection } from '@/lib/mongodb';
 import { requireAuth } from '@/lib/middleware';
-import { UserModel } from '@/lib/models/User';
-import { ObjectId } from 'mongodb';
+import Content from '@/lib/models/Content';
+import { IContent } from '@/lib/models/Content';
 
 async function handleGetContent(request: NextRequest, user: any) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get('id');
-
-  if (!id) {
-    return NextResponse.json(
-      { error: 'Content ID is required' },
-      { status: 400 }
-    );
-  }
   try {
-    const contentCollection = await getContentCollection();
+    // Extract ID from URL path
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').pop();
+
+    console.log('Individual content API called for:', { contentId: id, userId: user.userId });
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Content ID is required' },
+        { status: 400 }
+      );
+    }
 
     // Find content by ID
-    const content = await contentCollection.findOne({
-      _id: new ObjectId(id),
-    });
+    const content = await Content.findById(id).lean() as IContent | null;
 
     if (!content) {
       return NextResponse.json(
@@ -29,28 +28,40 @@ async function handleGetContent(request: NextRequest, user: any) {
       );
     }
 
-    // Check if user has access to this content based on subscription
-    const hasAccess = UserModel.validateSubscriptionAccess(
-      user.subscriptionPlan,
-      content.accessLevel
-    );
+    // Check if user can access this content based on subscription
+    const canAccess = (() => {
+      switch (user.subscriptionPlan) {
+        case 'premium':
+          return true; // Can access everything
+        case 'lite':
+          return content.accessLevel === 'everyone' || content.accessLevel === 'lite';
+        case 'default':
+          return content.accessLevel === 'everyone';
+        default:
+          return content.accessLevel === 'everyone';
+      }
+    })();
 
-    if (!hasAccess) {
-      return NextResponse.json(
-        {
-          error: 'Access denied. This content requires a higher subscription plan.',
-          requiredPlan: content.accessLevel,
-          currentPlan: user.subscriptionPlan
-        },
-        { status: 403 }
-      );
-    }
+    console.log('Content access check:', {
+      contentId: content._id,
+      contentTitle: content.title,
+      contentAccessLevel: content.accessLevel,
+      userSubscription: user.subscriptionPlan,
+      canAccess
+    });
 
     return NextResponse.json({
-      content,
+      content: {
+        ...content,
+        canAccess
+      },
+      userAccess: {
+        subscriptionPlan: user.subscriptionPlan,
+        canAccess
+      }
     });
   } catch (error) {
-    console.error('Get content detail error:', error);
+    console.error('Get individual content error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

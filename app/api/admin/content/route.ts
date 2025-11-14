@@ -35,7 +35,7 @@ async function ensureUploadDir() {
   }
 }
 
-// GET: Fetch all content (admin only)
+// GET: Fetch content uploaded by this admin only
 export async function GET(request: NextRequest) {
   try {
     const decoded = authenticateUser(request);
@@ -45,12 +45,45 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    await connectToDatabase();
-    const content = await Content.find({}).sort({ createdAt: -1 });
+    // Get query parameters for pagination
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
 
-    return NextResponse.json({ content });
+    await connectToDatabase();
+
+    // Find content uploaded by this specific admin
+    const content = await Content.find({ uploadedBy: decoded.userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    // Get total count for pagination
+    const total = await Content.countDocuments({ uploadedBy: decoded.userId });
+
+    console.log('Admin content fetched:', {
+      adminId: decoded.userId,
+      contentCount: content.length,
+      total
+    });
+
+    return NextResponse.json({
+      success: true,
+      content,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit),
+      },
+      admin: {
+        id: decoded.userId,
+        username: decoded.username
+      }
+    });
   } catch (error: any) {
-    console.error('GET content error:', error);
+    console.error('GET admin content error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to fetch content' },
       { status: 500 }
@@ -139,6 +172,69 @@ export async function POST(request: NextRequest) {
     console.error('POST content error:', error);
     return NextResponse.json(
       { error: error.message || 'Failed to upload content' },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE: Delete content (admin only, only content uploaded by this admin)
+export async function DELETE(request: NextRequest) {
+  try {
+    const decoded = authenticateUser(request);
+
+    if (decoded.role !== 'admin') {
+      console.error('Access denied: User role is not admin:', decoded.role);
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(request.url);
+    const contentId = searchParams.get('id');
+
+    if (!contentId) {
+      return NextResponse.json({ error: 'Content ID is required' }, { status: 400 });
+    }
+
+    await connectToDatabase();
+
+    // Find the content and verify it was uploaded by this admin
+    const content = await Content.findOne({ _id: contentId, uploadedBy: decoded.userId });
+
+    if (!content) {
+      return NextResponse.json({ error: 'Content not found or access denied' }, { status: 404 });
+    }
+
+    // Delete the thumbnail file if it exists
+    if (content.thumbnailPath) {
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const fullPath = path.join(process.cwd(), 'public', content.thumbnailPath);
+        await fs.unlink(fullPath);
+        console.log('Deleted thumbnail file:', fullPath);
+      } catch (error) {
+        console.warn('Failed to delete thumbnail file:', error);
+        // Continue with content deletion even if file deletion fails
+      }
+    }
+
+    // Delete the content from database
+    await Content.findByIdAndDelete(contentId);
+
+    console.log('Content deleted successfully:', {
+      contentId,
+      adminId: decoded.userId,
+      title: content.title
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Content deleted successfully'
+    });
+
+  } catch (error: any) {
+    console.error('DELETE content error:', error);
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete content' },
       { status: 500 }
     );
   }

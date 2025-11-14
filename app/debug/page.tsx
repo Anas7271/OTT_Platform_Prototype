@@ -23,7 +23,7 @@ export default function DebugPage() {
         ok: response.ok,
         data: result
       });
-    } catch (error) {
+    } catch (error: any) {
       setApiResult({
         error: error.message
       });
@@ -87,3 +87,5 @@ export default function DebugPage() {
     </div>
   );
 }
+
+export const dynamic = 'force-dynamic';
