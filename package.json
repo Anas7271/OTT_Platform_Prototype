@@ -6,11 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "seed": "node scripts/seed-mongodb.js",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "lucide-react": "^0.344.0",
+    "mongodb": "^6.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
